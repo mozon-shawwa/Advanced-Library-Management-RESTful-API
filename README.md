@@ -1,6 +1,3 @@
-Readme · MD
-Copy
-
 # 📚 Advanced Library Management API
  
 A RESTful API built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)**, following the **MVC + Services** architectural pattern with a full custom middleware pipeline.
