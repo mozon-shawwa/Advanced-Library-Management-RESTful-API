@@ -59,10 +59,7 @@ Service Layer     →  All business logic and database queries
 Model Layer       →  Mongoose schemas with built-in validation
      ↓
 MongoDB
-```
- 
-Controllers are intentionally thin — every method is under 6 lines and only delegates to the service layer. All business rules live in services.
- 
+``` 
 ---
  
 ## 🔧 Middleware Pipeline
@@ -106,11 +103,11 @@ validate(['title', 'author', 'isbn', 'year', 'genre'])
  
 ### 5. Rate Limiting — Three Tiers
  
-| Limiter | Window | Max Requests | Applied To |
-|---|---|---|---|
+|      Limiter    | Window |MaxReq|     Applied To      |
+|-----------------|--------|-----|----------------------|
 | `globalLimiter` | 15 min | 100 | All `/api/v1` routes |
-| `searchLimiter` | 1 min | 20 | `GET /search` only |
-| `writeLimiter` | 1 min | 10 | POST / PUT / DELETE |
+| `searchLimiter` | 1 min  | 20  | `GET /search` only   |
+| `writeLimiter`  | 1 min  | 10  | POST / PUT / DELETE  |
  
 ### 6. `errorHandler`
 A 4-argument Express error handler that catches every error passed via `next(err)`. Returns a consistent JSON shape and hides stack traces in production.
@@ -131,13 +128,13 @@ Base URL: `http://localhost:3000/api/v1`
  
 ### Books — `/api/v1/books`
  
-| Method | Endpoint | Description | Middleware |
-|---|---|---|---|
-| GET | `/` | List books with pagination & genre filter | — |
-| GET | `/:id` | Get single book by ID | — |
-| POST | `/` | Create a new book | `authenticate`, `writeLimiter`, `validateBody` |
-| PUT | `/:id` | Update book (whitelisted fields only) | `authenticate`, `writeLimiter` |
-| DELETE | `/:id` | Delete a book | `authenticate`, `writeLimiter` |
+| Method | Endpoint |               Description                 |                   Middleware                   |
+|--------|----------|-------------------------------------------|------------------------------------------------|
+| GET    | `/`      | List books with pagination & genre filter |                      —                         |
+| GET    | `/:id`   | Get single book by ID                     |                      —                         |
+| POST   | `/`      | Create a new book                         | `authenticate`, `writeLimiter`, `validateBody` |
+| PUT    | `/:id`   | Update book (whitelisted fields only)     | `authenticate`, `writeLimiter`                 |
+| DELETE | `/:id`   | Delete a book                             | `authenticate`, `writeLimiter`                 |
  
 **Pagination & Filtering:**
 ```
@@ -148,20 +145,20 @@ GET /api/v1/books?page=1&limit=10&genre=Fiction
  
 ### Reviews — `/api/v1/books/:bookId/reviews`
  
-| Method | Endpoint | Description | Middleware |
-|---|---|---|---|
-| GET | `/` | Get all reviews for a book | — |
-| POST | `/` | Add a review (rating: 1–5) | `writeLimiter`, `validateBody` |
+| Method | Endpoint |         Description        |            Middleware          |
+|--------|----------|----------------------------|--------------------------------|
+| GET    | `/`      | Get all reviews for a book |                  -             |
+| POST   | `/`      | Add a review (rating: 1–5) | `writeLimiter`, `validateBody` |
  
 Uses `mergeParams: true` to access `:bookId` from the parent router.
  
 ### Search & Stats
  
-| Method | Endpoint | Description | Middleware |
-|---|---|---|---|
-| GET | `/api/v1/search` | Search by title, author, genre, year | `searchLimiter` |
-| GET | `/api/v1/stats` | Total books, reviews, genres, avg rating | — |
-| GET | `/health` | Server uptime check | — |
+| Method |    Endpoint      |                 Description              |    Middleware   |
+|--------|------------------|------------------------------------------|-----------------|
+| GET    | `/api/v1/search` | Search by title, author, genre, year     | `searchLimiter` |
+| GET    | `/api/v1/stats`  | Total books, reviews, genres, avg rating |        -        |
+| GET    | `/health`        | Server uptime check                      |        -        |
  
 **Search params:** `?q=tolkien&genre=fantasy&year=1954`
  
@@ -179,41 +176,16 @@ Stats use a MongoDB `$group` aggregation pipeline — the average rating is comp
  
 ---
  
-## 🗄️ Data Models
- 
-### Book
-```js
-{
-  title:  String  (required, trimmed)
-  author: String  (required, trimmed)
-  isbn:   String  (required, unique, trimmed)
-  year:   Number  (required)
-  genre:  String  (required, trimmed)
-}
-```
- 
-### Review
-```js
-{
-  bookId:  ObjectId  (ref: 'Book', required)
-  user:    String    (required, trimmed)
-  rating:  Number    (required, min: 1, max: 5)
-  comment: String    (required, trimmed)
-}
-```
- 
----
- 
 ## 🔒 Security
  
-| Layer | Implementation |
-|---|---|
-| Security headers | `helmet()` — sets 11+ HTTP security headers automatically |
-| Body size limit | `express.json({ limit: '10kb' })` — prevents memory exhaustion |
-| XSS sanitization | All string input stripped of `<` and `>` before reaching controller |
-| Authentication | JWT verification on all write endpoints |
-| Rate limiting | Three independent limiters protect different attack surfaces |
-| Field whitelisting | PUT requests can only modify explicitly allowed fields |
+|        Layer       |                           Implementation                            |
+|--------------------|---------------------------------------------------------------------|
+| Security headers   | `helmet()` — sets 11+ HTTP security headers automatically           |
+| Body size limit    | `express.json({ limit: '10kb' })` — prevents memory exhaustion      |
+| XSS sanitization   | All string input stripped of `<` and `>` before reaching controller |
+| Authentication     | JWT verification on all write endpoints                             |
+| Rate limiting      | Three independent limiters protect different attack surfaces        |
+| Field whitelisting | PUT requests can only modify explicitly allowed fields              |
  
 ---
  
@@ -243,10 +215,10 @@ curl http://localhost:3000/health
  
 Winston writes structured JSON logs to two rotating files:
  
-| File | Content |
-|---|---|
+|          File       |    Content     |
+|---------------------|----------------|
 | `logs/combined.log` | All log levels |
-| `logs/error.log` | Errors only |
+| `logs/error.log`    | Errors only    |
  
 Console output is enabled in development mode with colorized formatting. Every log line includes `reqId`, `method`, `url`, `status`, and `durationMs`.
  
