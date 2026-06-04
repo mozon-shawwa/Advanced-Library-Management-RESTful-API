@@ -19,7 +19,7 @@ const create = async (req, res, next) => {
   try {
     const { bookId } = req.params;
     
-    const review = await reviewService.createReview({
+    const review = await reviewService.addReview({
       ...req.body,
       bookId,
       userId: req.user.id, // ربط المراجعة بـ ID المستخدم المسجل حالياً من الـ Auth Token
